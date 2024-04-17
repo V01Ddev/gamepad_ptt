@@ -18,7 +18,7 @@ void starting_msg(){
     printf("[*] Always use X to exit\n");
 }
 
-void send_key(int fo, int type, int key, int value){
+void emit(int fo, int type, int key, int value){
     struct input_event event;
     gettimeofday(&event.time, NULL);
     event.type = type;
@@ -43,8 +43,7 @@ int main(){
     int fd = open("/dev/input/js0", O_RDONLY);
     struct js_event e;
 
-    int of;
-    of = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
+    int of = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
     struct uinput_setup usetup;
 
     if (of < 0){
@@ -65,7 +64,6 @@ int main(){
     ioctl(of, UI_DEV_SETUP, &usetup);
     ioctl(of, UI_DEV_CREATE);
 
-    int PrevButtonState = 0;
     int JoyPressed = 0;
 
     // using X button to break
@@ -83,8 +81,8 @@ int main(){
         int ButtonState = e.value;
 
         if (JoyPressed == 1){
-            send_key(of, EV_KEY, KEY_RIGHTCTRL, 1);
-            send_key(of, EV_SYN, SYN_REPORT, 0);
+            emit(of, EV_KEY, KEY_RIGHTCTRL, 1);
+            emit(of, EV_SYN, SYN_REPORT, 0);
         }
 
         if (e.value == 1) {
@@ -97,10 +95,9 @@ int main(){
         } 
 
         else if (e.value == 0){
-            send_key(of, EV_KEY, KEY_RIGHTCTRL, 0);
-            send_key(of, EV_SYN, SYN_REPORT, 0);
+            emit(of, EV_KEY, KEY_RIGHTCTRL, 0);
+            emit(of, EV_SYN, SYN_REPORT, 0);
         }
-
     }
 
     // Destroy uinput device
